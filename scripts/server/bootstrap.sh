@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [[ -z $2 ]]; then
+  echo "Usage: $0 S3_URL WORLD_NAME [OPERATOR_USERNAME]"
+  exit -1
+fi
+
 S3_URL="$1"
 WORLD="$2"
 OPERATOR="$3"
@@ -10,9 +15,8 @@ echo "Downloading $S3_URL"
 aws s3 sync "$S3_URL" .
 
 echo "Starting server"
-echo $OPERATOR > ops.txt
-
 trap 'echo "Stopping server"' SIGINT
+[[ $OPERATOR ]] && echo $OPERATOR > ops.txt
 java -jar server.jar --world "$WORLD" --nogui &
 wait $!
 

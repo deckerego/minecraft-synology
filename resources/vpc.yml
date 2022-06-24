@@ -1,0 +1,113 @@
+Parameters:
+  VPCCIDR:
+    Type: String
+    Description: VPC CIDR address block to be split into smaller CIDR blocks
+    Default: 192.168.16.0/24
+  VPCSubnetBits:
+    Type: String
+    Description: The number of subnet bits for each subnet. For example, specifying a value "8" for this parameter will create subnets with a mask of "/24".
+    Default: 6
+  VPCSubnetCount:
+    Type: String
+    Description: The number of subnets we need to generate.
+    Default: 4
+
+Resources:
+  FargateVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsSupport: false
+      EnableDnsHostnames: false
+      InstanceTenancy: default
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+        - Key: MINECRAFT
+          Value: ${sls:stage}
+
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}a"
+      VpcId: !Ref FargateVPC
+      CidrBlock: !Select [ 0, !Cidr [ !GetAtt FargateVPC.CidrBlock, !Ref VPCSubnetCount, !Ref VPCSubnetBits ]]
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+        - Key: MINECRAFT
+          Value: ${sls:stage}
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref FargateVPC
+      InternetGatewayId: !Ref InternetGateway
+
+
+  InternetRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref FargateVPC
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+        - Key: MINECRAFT
+          Value: ${sls:stage}
+
+  NatRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref FargateVPC
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+        - Key: MINECRAFT
+          Value: ${sls:stage}
+
+  InternetGatewayRoute:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - InternetGateway
+      - InternetRouteTable
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+      RouteTableId: !Ref InternetRouteTable
+
+  NatGatewayRoute:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - NatRouteTable
+      - NatGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref NatRouteTable
+
+  InternetIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt InternetIP.AllocationId
+      SubnetId: !Ref SubnetA
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+
+  SubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref NatRouteTable
+      SubnetId: !Ref SubnetA

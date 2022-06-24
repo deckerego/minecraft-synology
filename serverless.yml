@@ -9,3 +9,8 @@ provider:
 functions:
   hello:
     handler: handler.hello
+
+resources:
+  - ${file(resources/vpc.yml)}
+  - ${file(resources/ecs.yml)}
+  - ${file(resources/helloworld.yml)}

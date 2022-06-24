@@ -1,0 +1,91 @@
+Parameters:
+  WorldName:
+    Type: String
+    Description: Name of the Minecraft World
+    Default: "helloworld"
+
+Resources:
+  HelloWorldBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Join:
+          - "-"
+          - - minecraftecs
+            - ${sls:stage}
+            - !Ref WorldName
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+        - Key: MINECRAFT
+          Value: !Ref WorldName
+
+  HelloWorldTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    DependsOn: LogGroup
+    Properties:
+      Family: minecraftecs-${sls:stage}
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 2.0GB
+      ExecutionRoleArn: !Ref ExecutionRole
+      TaskRoleArn: !Ref TaskRole
+      ContainerDefinitions:
+        - Name:
+            Fn::Join:
+              - "-"
+              - - minecraftecs
+                - server
+                - ${sls:stage}
+                - !Ref WorldName
+          Image: ghcr.io/deckerego/minecraft-ecs/minecraft-server:latest
+          PortMappings:
+              - ContainerPort: 25565
+                HostPort: 25565
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroup
+              awslogs-stream-prefix: mc
+          Command:
+            - Fn::Join:
+              - "/"
+              - - "s3:/"
+                - Ref: HelloWorldBucket
+            - !Ref WorldName
+            - "deckerego"
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+        - Key: MINECRAFT
+          Value: !Ref WorldName
+
+  HelloWorldTaskService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName:
+        Fn::Join:
+          - "-"
+          - - minecraftecs
+            - service
+            - ${sls:stage}
+            - !Ref WorldName
+      Cluster: !Ref EcsCluster
+      TaskDefinition: !Ref HelloWorldTaskDefinition
+      EnableECSManagedTags: true
+      DesiredCount: 0
+      LaunchType: FARGATE
+      PlatformVersion: 1.3.0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - !Ref SubnetA
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+        - Key: MINECRAFT
+          Value: !Ref WorldName

@@ -17,8 +17,8 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref VPCCIDR
-      EnableDnsSupport: false
-      EnableDnsHostnames: false
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
       InstanceTenancy: default
       Tags:
         - Key: STAGE
@@ -26,7 +26,7 @@ Resources:
         - Key: MINECRAFT
           Value: ${sls:stage}
 
-  SubnetA:
+  Subnet0:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: !Sub "${AWS::Region}a"
@@ -36,13 +36,40 @@ Resources:
         - Key: STAGE
           Value: ${sls:stage}
 
+  Subnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}a"
+      VpcId: !Ref FargateVPC
+      CidrBlock: !Select [ 1, !Cidr [ !GetAtt FargateVPC.CidrBlock, !Ref VPCSubnetCount, !Ref VPCSubnetBits ]]
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+  Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}b"
+      VpcId: !Ref FargateVPC
+      CidrBlock: !Select [ 2, !Cidr [ !GetAtt FargateVPC.CidrBlock, !Ref VPCSubnetCount, !Ref VPCSubnetBits ]]
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+
+  Subnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}c"
+      VpcId: !Ref FargateVPC
+      CidrBlock: !Select [ 3, !Cidr [ !GetAtt FargateVPC.CidrBlock, !Ref VPCSubnetCount, !Ref VPCSubnetBits ]]
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: STAGE
-          Value: ${sls:stage}
-        - Key: MINECRAFT
           Value: ${sls:stage}
 
   InternetGatewayAttachment:
@@ -59,8 +86,6 @@ Resources:
       Tags:
         - Key: STAGE
           Value: ${sls:stage}
-        - Key: MINECRAFT
-          Value: ${sls:stage}
 
   NatRouteTable:
     Type: AWS::EC2::RouteTable
@@ -68,8 +93,6 @@ Resources:
       VpcId: !Ref FargateVPC
       Tags:
         - Key: STAGE
-          Value: ${sls:stage}
-        - Key: MINECRAFT
           Value: ${sls:stage}
 
   InternetGatewayRoute:
@@ -101,13 +124,43 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt InternetIP.AllocationId
-      SubnetId: !Ref SubnetA
+      SubnetId: !Ref Subnet0
       Tags:
         - Key: STAGE
           Value: ${sls:stage}
 
-  SubnetARouteTableAssociation:
+  Subnet0RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref NatRouteTable
-      SubnetId: !Ref SubnetA
+      SubnetId: !Ref Subnet0
+
+  Subnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref InternetRouteTable
+      SubnetId: !Ref Subnet1
+
+  Subnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref InternetRouteTable
+      SubnetId: !Ref Subnet2
+
+  Subnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref InternetRouteTable
+      SubnetId: !Ref Subnet3
+
+  MinecraftSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "minecraftecs-sg-${sls:stage}"
+      GroupDescription: Minecraft server traffic
+      VpcId: !Ref FargateVPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 25565
+        ToPort: 25565
+        CidrIp: !Ref VPCCIDR

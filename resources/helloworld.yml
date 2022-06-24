@@ -20,6 +20,57 @@ Resources:
         - Key: MINECRAFT
           Value: !Ref WorldName
 
+  LoadBalancerTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name:
+        Fn::Join:
+          - "-"
+          - - minecrafttg
+            - ${sls:stage}
+            - !Ref WorldName
+      VpcId: !Ref FargateVPC
+      Port: 25565
+      HealthCheckEnabled: true
+      IpAddressType: ipv4
+      Protocol: TCP
+      TargetType: ip
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+        - Key: MINECRAFT
+          Value: !Ref WorldName
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name:
+        Fn::Join:
+          - "-"
+          - - minecraftlb
+            - ${sls:stage}
+            - !Ref WorldName
+      Type: network
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      Subnets:
+        - !Ref Subnet0
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+        - Key: MINECRAFT
+          Value: !Ref WorldName
+
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref LoadBalancerTargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 25565
+      Protocol: TCP
+
   HelloWorldTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     DependsOn: LogGroup
@@ -28,8 +79,8 @@ Resources:
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-      Cpu: 256
-      Memory: 2.0GB
+      Cpu: 1024
+      Memory: 4096
       ExecutionRoleArn: !Ref ExecutionRole
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
@@ -57,6 +108,11 @@ Resources:
                 - Ref: HelloWorldBucket
             - !Ref WorldName
             - "deckerego"
+          HealthCheck:
+            Command:
+              - "CMD-SHELL"
+              - "cat /proc/net/tcp | grep 63DD"
+            StartPeriod: 300
       Tags:
         - Key: STAGE
           Value: ${sls:stage}
@@ -79,11 +135,25 @@ Resources:
       DesiredCount: 0
       LaunchType: FARGATE
       PlatformVersion: 1.3.0
+      LoadBalancers:
+        - ContainerName:
+            Fn::Join:
+              - "-"
+              - - minecraftecs
+                - server
+                - ${sls:stage}
+                - !Ref WorldName
+          ContainerPort: 25565
+          TargetGroupArn: !Ref LoadBalancerTargetGroup
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: ENABLED
+          AssignPublicIp: DISABLED
           Subnets:
-            - !Ref SubnetA
+            - !Ref Subnet1
+            - !Ref Subnet2
+            - !Ref Subnet3
+          SecurityGroups:
+            - !Ref MinecraftSecurityGroup
       Tags:
         - Key: STAGE
           Value: ${sls:stage}

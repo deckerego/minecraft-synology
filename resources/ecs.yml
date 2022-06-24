@@ -38,18 +38,19 @@ Resources:
               - Effect: 'Allow'
                 Action:
                   - s3:Get*
+                  - s3:List*
                   - s3:PutObject*
                   - s3:DeleteObject*
-                  - s3:ListBucket*
                   - s3:ListMultipartUploadParts
                 Resource:
-                  - Fn::GetAtt: HelloWorldBucket.Arn
-                  - Fn::Join:
-                    - "/"
-                    - - Fn::GetAtt: HelloWorldBucket.Arn
-                      - "*"
+                  - "arn:aws:s3:::minecraftecs-${sls:stage}-*"
+                  - "arn:aws:s3:::minecraftecs-${sls:stage}-*/*"
 
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: /minecraft/${sls:stage}
+      RetentionInDays: 90
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}

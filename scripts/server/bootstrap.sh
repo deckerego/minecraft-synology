@@ -15,7 +15,9 @@ echo "Downloading $S3_URL"
 aws s3 sync "$S3_URL" .
 
 echo "Starting server"
-trap 'echo "Stopping server"' SIGINT
+trap 'echo "Interrupting server"' SIGINT
+trap 'echo "Terminating server"' SIGTERM
+
 [[ $OPERATOR ]] && echo $OPERATOR > ops.txt
 java -jar server.jar --world "$WORLD" --nogui &
 wait $!

@@ -1,0 +1,69 @@
+Resources:
+  EcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: minecraft-${sls:stage}
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: minecraft-role-exec-${sls:stage}
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: minecraft-role-task-${sls:stage}
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: minecraft-sync-${sls:stage}
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                  - s3:Get*
+                  - s3:List*
+                  - s3:PutObject*
+                  - s3:DeleteObject*
+                  - s3:ListMultipartUploadParts
+                Resource:
+                  - "arn:aws:s3:::minecraftecs-${sls:stage}-*"
+                  - "arn:aws:s3:::minecraftecs-${sls:stage}-*/*"
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub "minecraft-lb-${sls:stage}"
+      Type: network
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      Subnets:
+        - !Ref PublicSubnet
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /minecraft/${sls:stage}
+      RetentionInDays: 90
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}

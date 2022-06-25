@@ -11,10 +11,14 @@ Parameters:
     Type: Number
     Description: Fargate CPU units to consume (1024 or 2048 recommended)
     Default: 1024
-  Memory:
+  JavaMemory:
+    Type: String
+    Description: The amount of memory reserved by Java when running the Minecraft server (2g recommended)
+    Default: "2g"
+  ContainerMemory:
     Type: Number
-    Description: The amount (in MiB) of memory used by the task (between 4096 and 8192 recommended)
-    Default: 4096
+    Description: The amount (in MiB) of memory used by the ECS task (between 2048 and 8192 recommended)
+    Default: 3072
   ListenPort:
     Type: Number
     Description: The TCP port for the load balancer to listen to for connections (needs to be unique)
@@ -76,7 +80,7 @@ Resources:
       RequiresCompatibilities:
         - FARGATE
       Cpu: !Ref CpuUnits
-      Memory: !Ref Memory
+      Memory: !Ref ContainerMemory
       ExecutionRoleArn: !Ref ExecutionRole
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
@@ -103,6 +107,7 @@ Resources:
               - - "s3:/"
                 - Ref: HelloWorldBucket
             - !Ref WorldName
+            - !Ref JavaMemory
             - !Ref OperatorUsername
           HealthCheck:
             Command:

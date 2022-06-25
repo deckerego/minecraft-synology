@@ -54,7 +54,7 @@ Resources:
       Scheme: internet-facing
       IpAddressType: ipv4
       Subnets:
-        - !Ref Subnet0
+        - !Ref PublicSubnet
       Tags:
         - Key: STAGE
           Value: ${sls:stage}
@@ -121,6 +121,7 @@ Resources:
 
   HelloWorldTaskService:
     Type: AWS::ECS::Service
+    DependsOn: LoadBalancerListener
     Properties:
       ServiceName:
         Fn::Join:
@@ -149,7 +150,7 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
           Subnets:
-            - !Ref Subnet1
+            - !Ref PrivateSubnet
           SecurityGroups:
             - !Ref MinecraftSecurityGroup
       Tags:

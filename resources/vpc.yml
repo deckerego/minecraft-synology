@@ -26,7 +26,7 @@ Resources:
         - Key: MINECRAFT
           Value: ${sls:stage}
 
-  Subnet0:
+  PublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: !Sub "${AWS::Region}a"
@@ -36,31 +36,12 @@ Resources:
         - Key: STAGE
           Value: ${sls:stage}
 
-  Subnet1:
+  PrivateSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: !Sub "${AWS::Region}a"
       VpcId: !Ref FargateVPC
       CidrBlock: !Select [ 1, !Cidr [ !GetAtt FargateVPC.CidrBlock, !Ref VPCSubnetCount, !Ref VPCSubnetBits ]]
-      Tags:
-        - Key: STAGE
-          Value: ${sls:stage}
-  Subnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Sub "${AWS::Region}b"
-      VpcId: !Ref FargateVPC
-      CidrBlock: !Select [ 2, !Cidr [ !GetAtt FargateVPC.CidrBlock, !Ref VPCSubnetCount, !Ref VPCSubnetBits ]]
-      Tags:
-        - Key: STAGE
-          Value: ${sls:stage}
-
-  Subnet3:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Sub "${AWS::Region}c"
-      VpcId: !Ref FargateVPC
-      CidrBlock: !Select [ 3, !Cidr [ !GetAtt FargateVPC.CidrBlock, !Ref VPCSubnetCount, !Ref VPCSubnetBits ]]
       Tags:
         - Key: STAGE
           Value: ${sls:stage}
@@ -124,34 +105,22 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt InternetIP.AllocationId
-      SubnetId: !Ref Subnet0
+      SubnetId: !Ref PublicSubnet
       Tags:
         - Key: STAGE
           Value: ${sls:stage}
 
-  Subnet0RouteTableAssociation:
+  PublicRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref NatRouteTable
-      SubnetId: !Ref Subnet0
+      SubnetId: !Ref PublicSubnet
 
-  Subnet1RouteTableAssociation:
+  PrivateRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref InternetRouteTable
-      SubnetId: !Ref Subnet1
-
-  Subnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref InternetRouteTable
-      SubnetId: !Ref Subnet2
-
-  Subnet3RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref InternetRouteTable
-      SubnetId: !Ref Subnet3
+      SubnetId: !Ref PrivateSubnet
 
   MinecraftSecurityGroup:
     Type: AWS::EC2::SecurityGroup

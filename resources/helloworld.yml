@@ -3,6 +3,22 @@ Parameters:
     Type: String
     Description: Name of the Minecraft World
     Default: "helloworld"
+  OperatorUsername:
+    Type: String
+    Description: The username of the main operator for this world
+    Default: ""
+  CpuUnits:
+    Type: Number
+    Description: Fargate CPU units to consume (1024 or 2048 recommended)
+    Default: 1024
+  Memory:
+    Type: Number
+    Description: The amount (in MiB) of memory used by the task (between 4096 and 8192 recommended)
+    Default: 4096
+  ListenPort:
+    Type: Number
+    Description: The TCP port for the load balancer to listen to for connections (needs to be unique)
+    Default: 25565
 
 Resources:
   HelloWorldBucket:
@@ -26,7 +42,7 @@ Resources:
       Name:
         Fn::Join:
           - "-"
-          - - minecrafttg
+          - - minecraft-lb
             - ${sls:stage}
             - !Ref WorldName
       VpcId: !Ref FargateVPC
@@ -41,26 +57,6 @@ Resources:
         - Key: MINECRAFT
           Value: !Ref WorldName
 
-  LoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Name:
-        Fn::Join:
-          - "-"
-          - - minecraftlb
-            - ${sls:stage}
-            - !Ref WorldName
-      Type: network
-      Scheme: internet-facing
-      IpAddressType: ipv4
-      Subnets:
-        - !Ref PublicSubnet
-      Tags:
-        - Key: STAGE
-          Value: ${sls:stage}
-        - Key: MINECRAFT
-          Value: !Ref WorldName
-
   LoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -68,7 +64,7 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref LoadBalancerTargetGroup
       LoadBalancerArn: !Ref LoadBalancer
-      Port: 25565
+      Port: !Ref ListenPort
       Protocol: TCP
 
   HelloWorldTaskDefinition:
@@ -79,8 +75,8 @@ Resources:
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-      Cpu: 1024
-      Memory: 4096
+      Cpu: !Ref CpuUnits
+      Memory: !Ref Memory
       ExecutionRoleArn: !Ref ExecutionRole
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
@@ -107,7 +103,7 @@ Resources:
               - - "s3:/"
                 - Ref: HelloWorldBucket
             - !Ref WorldName
-            - "deckerego"
+            - !Ref OperatorUsername
           HealthCheck:
             Command:
               - "CMD-SHELL"

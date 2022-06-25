@@ -10,13 +10,40 @@ enough to start and stop tasks within a service). Eventually a helper
 webapp will be created to make this management easier.
 
 
+## How to Create Your Own
+
+This repo is intended to be cloned. Your best bet is to create a new private
+GitHub (or just plain ole Git) repository and configure from there.
+
+To create your own version of this repository first create the new repo,
+clone this one, rename the newly cloned directory, and then change origin
+to be **your new repository instead**. For example:
+
+```sh
+$ git clone https://github.com/deckerego/minecraft-ecs.git
+$ mv minecraft-ecs your-system-ecs
+$ cd your-system-ecs
+$ git remote set-url origin git@github.com:you/your-repo
+$ git push origin master
+```
+
+
+You should also merge from this repo as needed since the project is
+rapidly changing. To do that, add this as a named remote source and merge.
+For example:
+
+```sh
+$ git remote add minecraft-ecs https://github.com/deckerego/minecraft-ecs.git
+$ git fetch --all
+$ git merge minecraft-ecs/main
+```
+
+This *should* merge any changes in cleanly.
+
 ## How to Configure
 
-This repo is intended to be forked. Your best bet is to fork this repo
-into your own private repository, and configure from there. Merge from this
-repo as needed since the project is rapidly changing.
-
-Within the `resources` directory there are three base files:
+After you have created your own repository, you can tweak the configs to meet
+your needs. Within the `resources` directory there are three base files:
 - `vpc.yml` - used to define the Virtual Private Cloud that Fargate will live within
 - `ecs.yml` - the definition of the ECS cluster and load balancer your worlds will share
 - `helloworld.yml` - an example world definition that sets up your ECS service and task

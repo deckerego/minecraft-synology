@@ -12,6 +12,10 @@ webapp will be created to make this management easier.
 
 ## How to Configure
 
+This repo is intended to be forked. Your best bet is to fork this repo
+into your own private repository, and configure from there. Merge from this
+repo as needed since the project is rapidly changing.
+
 Within the `resources` directory there are three base files:
 - `vpc.yml` - used to define the Virtual Private Cloud that Fargate will live within
 - `ecs.yml` - the definition of the ECS cluster and load balancer your worlds will share

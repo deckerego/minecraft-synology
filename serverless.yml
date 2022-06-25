@@ -8,8 +8,8 @@ provider:
   logRetentionInDays: 90
 
 functions:
-  hello:
-    handler: handler.hello
+  status:
+    handler: handler.status
 
 resources:
   - ${file(resources/vpc.yml)}

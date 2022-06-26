@@ -1,17 +1,34 @@
 service: minecraft-ecs
-
 frameworkVersion: '3'
 
 provider:
   name: aws
   runtime: nodejs14.x
   logRetentionInDays: 90
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - 'ecs:DescribeServices'
+        - 'ecs:ListServices'
+        - 'elasticloadbalancing:DescribeTargetGroups'
+        - 'elasticloadbalancing:DescribeLoadBalancers'
+        - 'elasticloadbalancing:DescribeListeners'
+      Resource: '*'
 
 functions:
   status:
-    handler: handler.status
+    handler: handlers/status.handler
+    environment:
+      CLUSTER_NAME: !Ref EcsCluster
+    events:
+      - httpApi:
+          method: 'GET'
+          path: /status
 
 resources:
   - ${file(resources/vpc.yml)}
   - ${file(resources/ecs.yml)}
   - ${file(resources/helloworld.yml)}
+
+plugins:
+  - serverless-offline

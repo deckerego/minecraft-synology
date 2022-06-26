@@ -62,6 +62,7 @@ use the included Serverless config to deploy to a named "SYSTEM" with a given
 AWS profile (that I assume you already have configured).
 
 ```sh
+$ npm install
 $ serverless deploy --stage SYSTEM --aws-profile PROFILE
 ```
 
@@ -86,3 +87,16 @@ shut down the hosted world and greatly reduce your costs. For now, you need
 to manually do this in ECS by setting the service's desired task count
 back down to `0` and manually stopping the running task. Once you do so,
 your world should be uploaded back to S3 and the container deprovisioned.
+
+
+## Testing
+
+You can test the HTTP endpoints in offline mode against your remote AWS
+infrastructure using:
+
+```sh
+$ AWS_PROFILE=PROFILE AWS_REGION=us-east-1 serverless offline start
+```
+
+Where `PROFILE` is the AWS configuration profile for the remote infrstructure
+you are testing against.

@@ -1,0 +1,19 @@
+{
+  "name": "minecraft-ecs",
+  "version": "0.0.1",
+  "description": "Launch a Minecraft Java server with AWS' ECS using Fargate",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "aws-sdk-client-mock": "^0.6.2",
+    "jest": "^28.1.0",
+    "serverless-offline": "^8.8.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ecs": "^3.118.0",
+    "@aws-sdk/client-elastic-load-balancing-v2": "^3.118.0"
+  }
+}

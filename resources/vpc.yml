@@ -133,3 +133,16 @@ Resources:
         FromPort: 25565
         ToPort: 25565
         CidrIp: !Ref VPCCIDR
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub "minecraft-lb-${sls:stage}"
+      Type: network
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      Subnets:
+        - !Ref PublicSubnet
+      Tags:
+        - Key: STAGE
+          Value: ${sls:stage}

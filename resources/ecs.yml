@@ -46,19 +46,6 @@ Resources:
                   - "arn:aws:s3:::minecraftecs-${sls:stage}-*"
                   - "arn:aws:s3:::minecraftecs-${sls:stage}-*/*"
 
-  LoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Name: !Sub "minecraft-lb-${sls:stage}"
-      Type: network
-      Scheme: internet-facing
-      IpAddressType: ipv4
-      Subnets:
-        - !Ref PublicSubnet
-      Tags:
-        - Key: STAGE
-          Value: ${sls:stage}
-
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

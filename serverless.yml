@@ -5,6 +5,16 @@ provider:
   name: aws
   runtime: nodejs14.x
   logRetentionInDays: 90
+  logs:
+    httpApi: true
+  httpApi:
+    authorizers:
+      mgmtAuthorizer:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: !GetAtt [ UserPool, ProviderURL ]
+        audience:
+          - Ref: UserPoolClient
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -23,11 +33,14 @@ functions:
     events:
       - httpApi:
           method: 'GET'
-          path: /status
+          path: /
+          authorizer:
+            name: mgmtAuthorizer
 
 resources:
   - ${file(resources/vpc.yml)}
   - ${file(resources/ecs.yml)}
+  - ${file(resources/cognito.yml)}
   - ${file(resources/helloworld.yml)}
 
 plugins:

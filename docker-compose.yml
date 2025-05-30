@@ -1,0 +1,9 @@
+services:
+  minecraft-server:
+    image: "ghcr.io/deckerego/minecraft-synology:main"
+    ports:
+      - "25565:25565"
+    user: "${UID}:${GID}"
+    volumes:
+      - /minecraft:/srv/worlds
+    working_dir: /srv

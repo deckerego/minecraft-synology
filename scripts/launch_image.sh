@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ -z $2 ]]; then
-  echo "Usage: $0 S3_URL WORLD_NAME [OPERATOR_USERNAME]"
+  echo "Usage: $0 WORLD_NAME [OPERATOR_USERNAME]"
   exit -1
 fi
 

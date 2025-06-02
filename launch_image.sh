@@ -5,4 +5,4 @@ if [[ -z $2 ]]; then
   exit -1
 fi
 
-docker run -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"  -p 25565:25565 ghcr.io/deckerego/minecraft-ecs/minecraft-server:latest $@
+docker run -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"  -p 25565:25565 ghcr.io/deckerego/minecraft-synology/minecraft-server:latest $@

@@ -1,8 +1,8 @@
 name: Publish Minecraft Server Image
 
 on:
-  push:
-    branches: [synology_pivot]
+  release:
+    types: [published]
 
 env:
   REGISTRY: ghcr.io

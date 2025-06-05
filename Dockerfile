@@ -6,6 +6,9 @@ RUN echo 'eula=true' > /srv/eula.txt
 COPY scripts/bootstrap.sh /srv/bootstrap.sh
 COPY config/server.properties /srv/server.properties
 
+ENV WORLD world
+ENV MEMORY 2048m
+
 # Download the world, launch the Java server
 EXPOSE 25565
-ENTRYPOINT [ "bash", "/srv/bootstrap.sh" ]
+ENTRYPOINT [ "bash", "/srv/bootstrap.sh", "$WORLD", "$MEMORY", "$OPERATOR" ]

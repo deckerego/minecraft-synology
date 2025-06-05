@@ -13,3 +13,8 @@ ease of management by Synology.
 
 ## How to Run
 
+
+## How to Test an Image
+
+docker build . -t ghcr.io/minecraft-synology:test
+docker run ghcr.io/minecraft-synology:test

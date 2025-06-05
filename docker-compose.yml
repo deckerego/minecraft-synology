@@ -4,6 +4,10 @@ services:
     ports:
       - "25565:25565"
     user: "${UID}:${GID}"
+    environment:
+      - "WORLD=world"
+      - "MEMORY=2048m"
+      - "OPERATOR=Herobrine"
     volumes:
       - /minecraft:/srv/worlds
     working_dir: /srv

@@ -17,12 +17,19 @@ absolute path might be `/volume1/minecraft/worlds`.
 Modify the memory to be reserved for the Minecraft server, and add an operator username to make
 sure you can administer the world. Once this is done, you can save the config and build the project.
 
+You will also need to forward port 25565 from your Synology NAS to the Docker container. You can do that
+by adding the `Docker` minecraft service to the list of permitted inbound connections:
+
+![Synology's firewall rules, showing the list of services that can accept inbound traffic](docs/images/fw_apps.png)
+
 Be aware that the container will need outbound internet connectivity, which may not be allowed
 by your firewall rules. If you need to create a new rule to allow the traffic, first find the 
 network in use by your new project in the Container Manager network tab:
+
 ![The Container Manager's Network tab, showing the subnet used by the Mincraft server container](docs/images/virtual_network.png)
 
 Then create a prioritized firewall rule to allow this network outbound access:
+
 ![Synology's firewall configuration rules, showing the addition of the Minecraft server's container subnet](docs/images/firewall.png)
 
 

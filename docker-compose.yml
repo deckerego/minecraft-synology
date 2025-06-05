@@ -1,13 +1,12 @@
 services:
   minecraft-server:
-    image: "ghcr.io/deckerego/minecraft-synology:main"
+    image: "ghcr.io/deckerego/minecraft-synology:synology_pivot"
     ports:
       - "25565:25565"
-    user: "${UID}:${GID}"
     environment:
       - "WORLD=world"
       - "MEMORY=2048m"
       - "OPERATOR=Herobrine"
     volumes:
-      - /minecraft:/srv/worlds
+      - /volume1/minecraft/worlds:/srv/worlds
     working_dir: /srv

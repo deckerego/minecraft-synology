@@ -1,6 +1,6 @@
 services:
   minecraft-server:
-    image: "ghcr.io/deckerego/minecraft-synology:synology_pivot"
+    image: "ghcr.io/deckerego/minecraft-synology:1.21.5"
     ports:
       - "25565:25565"
     environment:

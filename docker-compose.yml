@@ -8,5 +8,5 @@ services:
       - "MEMORY=2048m"
       - "OPERATOR=Herobrine"
     volumes:
-      - /Users/deckerego/Library/Application Support/minecraft/saves/test:/srv/test
+      - /volume1/minecraft/test:/srv/test
     working_dir: /srv

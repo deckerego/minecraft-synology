@@ -4,9 +4,9 @@ services:
     ports:
       - "25565:25565"
     environment:
-      - "WORLD=world"
+      - "WORLD=test"
       - "MEMORY=2048m"
       - "OPERATOR=Herobrine"
     volumes:
-      - /volume1/minecraft/worlds:/srv/worlds
+      - /Users/deckerego/Library/Application Support/minecraft/saves/test:/srv/test
     working_dir: /srv

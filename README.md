@@ -2,7 +2,7 @@
 
 Allows you to host a Minecraft Java server with Synology's container management utilities.
 This project hosts a Docker image for the Java server & the Docker Compose configs for
-ease of management by Synology.
+ease of management by the [Synology Container Manager](https://www.synology.com/en-us/dsm/feature/docker).
 
 
 ## How to Install
@@ -11,11 +11,12 @@ Use the Container Manager within your NAS to create a new project, then either c
 `docker-compose.yml` or upload it to create the new project. 
 
 Before you start the project, modify the `volumes` list to point to the absolute path that hosts your world files.
-As an example, if you create a new shared folder called "minecraft" on your primary storage volume, the
-absolute path might be `/volume1/minecraft/worlds`.
+As an example, if you create a new shared folder called "minecraft" on your primary storage volume, and you want to
+host a world named "test," the absolute path might be `/volume1/minecraft/test`.
 
 Modify the memory to be reserved for the Minecraft server, and add an operator username to make
-sure you can administer the world. Once this is done, you can save the config and build the project.
+sure you can administer the world. Once this is done, you can save the config and build the project
+within the Synology Container Manager.
 
 You will also need to forward port 25565 from your Synology NAS to the Docker container. You can do that
 by adding the `Docker` minecraft service to the list of permitted inbound connections:

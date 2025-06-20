@@ -34,6 +34,21 @@ Then create a prioritized firewall rule to allow this network outbound access:
 ![Synology's firewall configuration rules, showing the addition of the Minecraft server's container subnet](docs/images/firewall.png)
 
 
+## How to Upgrade
+
+Microsoft does release regular updates - when they do confirm that a new
+[Docker image](https://github.com/deckerego?tab=packages&repo_name=minecraft-synology) is ready
+with the updated server version. If it is available, you can upgrade by:
+1. Opening the Synology Container Manager and stopping the `minecraft` project
+1. Updating the `minecraft` project's "YAML Configuration" to use the new version tag of the Docker image
+1. Save the changes, and when prompted rebuild and start the project
+1. Update the Synology firewall rules to allow access to the new container (this was likely reset during the rebuild)
+
+If the version of the Minecraft server you need isn't available yet in the image repository, feel free to
+[create a new issue](https://github.com/deckerego/minecraft-synology/issues) and I'll work on creating a new version
+as soon as possible.
+
+
 ## How to Test an Image
 
 A local test image can be created using:

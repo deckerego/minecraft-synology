@@ -38,6 +38,9 @@ Then create a prioritized firewall rule to allow this network outbound access:
 
 A local test image can be created using:
 ```
-docker build . -t ghcr.io/minecraft-synology:test
+docker build . --build-arg HASH=6e64dcabba3c01a7271b4fa6bd898483b794c59b -t ghcr.io/minecraft-synology:test
 docker run ghcr.io/minecraft-synology:test
 ```
+
+Where the `HASH` build argument is the hash for the chosen Minecraft release 
+as defined by https://piston-meta.mojang.com/mc/game/version_manifest.json

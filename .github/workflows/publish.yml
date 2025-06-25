@@ -35,5 +35,6 @@ jobs:
         with:
           context: .
           push: true
+          build-args: HASH=${{ vars.JAR_HASH }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}

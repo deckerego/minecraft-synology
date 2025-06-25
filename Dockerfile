@@ -14,7 +14,7 @@ ENV WORLD=world
 ENV MEMORY=2048m
 
 RUN curl -o /srv/server.jar https://piston-data.mojang.com/v1/objects/${HASH}/server.jar
-RUN echo ${HASH} /srv/server.jar | sha1sum -c -
+RUN echo "${HASH}  /srv/server.jar" | sha1sum -c -
 
 # Use the convenience script to launch server.jar
 EXPOSE 25565
